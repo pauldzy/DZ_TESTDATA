@@ -333,7 +333,7 @@ AS
       --------------------------------------------------------------------------
       str_sql := 'CREATE TABLE tl_2014_55059_faces( '
               || '    objectid    INTEGER NOT NULL '
-              || '   ,tfid        NUMBER(10) NOT NULL '
+              || '   ,tfid        NUMBER(10) '
               || '   ,statefp10   VARCHAR2(2 Char) NOT NULL '
               || '   ,countyfp10  VARCHAR2(3 Char) NOT NULL '
               || '   ,tractce10   VARCHAR2(6 Char) NOT NULL '
@@ -390,6 +390,11 @@ AS
               || ') '
               || 'TABLESPACE ' || dz_testdata_constants.c_tablespace || ' ';
               
+      EXECUTE IMMEDIATE str_sql;
+      
+      str_sql := 'CREATE INDEX tl_2014_55059_faces_01i '
+              || 'ON tl_2014_55059_faces(tractce) '
+              || 'TABLESPACE ' || dz_testdata_constants.c_tablespace || ' ';
       EXECUTE IMMEDIATE str_sql;
       
       str_sql := 'DELETE FROM user_sdo_geom_metadata a WHERE a.table_name = :p01';

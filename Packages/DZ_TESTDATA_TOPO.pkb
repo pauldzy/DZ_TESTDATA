@@ -142,6 +142,101 @@ AS
    
    -----------------------------------------------------------------------------
    -----------------------------------------------------------------------------
+   FUNCTION verify_topo_map(
+      p_topo_map_name IN  VARCHAR2
+   ) RETURN VARCHAR2
+   AS
+      str_topomaps   VARCHAR2(4000 Char);
+
+   BEGIN
+   
+      str_topomaps := MDSYS.SDO_TOPO_MAP.LIST_TOPO_MAPS();
+      
+      IF str_topomaps IS NULL
+      OR INSTR(str_topomaps,p_topo_map_name) = 0
+      THEN
+         RETURN 'INVALID';
+         
+      ELSE
+         RETURN 'VALID';
+         
+      END IF;
+      
+   END verify_topo_map;
+   
+   -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
+   FUNCTION get_topo_maps
+   RETURN MDSYS.SDO_STRING2_ARRAY
+   AS
+      str_topo_maps VARCHAR2(4000 Char);
+      ary_topo_maps MDSYS.SDO_STRING2_ARRAY;
+      
+   BEGIN
+   
+      str_topo_maps := MDSYS.SDO_TOPO_MAP.LIST_TOPO_MAPS();
+      --dbms_output.put_line(MDSYS.SDO_TOPO_MAP.LIST_TOPO_MAPS());
+      
+      IF str_topo_maps IS NULL
+      THEN
+         RETURN NULL;
+         
+      END IF;
+      
+      ary_topo_maps := dz_testdata_util.gz_split(
+          p_str   => str_topo_maps
+         ,p_regex => '\)\, \('
+         ,p_trim  => 'TRUE'
+      );
+      
+      FOR i IN 1 .. ary_topo_maps.COUNT
+      LOOP
+         ary_topo_maps(i) := REPLACE(ary_topo_maps(i),'(','');
+         ary_topo_maps(i) := REPLACE(ary_topo_maps(i),')','');
+         --dbms_output.put_line(ary_topo_maps(i));
+      
+      END LOOP;
+      
+      RETURN ary_topo_maps;
+      
+   END get_topo_maps;
+   
+   -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
+   PROCEDURE purge_all_topo_maps
+   AS
+      ary_topo_maps MDSYS.SDO_STRING2_ARRAY;
+      ary_parts     MDSYS.SDO_STRING2_ARRAY;
+      
+   BEGIN
+   
+      ary_topo_maps := get_topo_maps();
+      
+      IF ary_topo_maps IS NULL
+      OR ary_topo_maps.COUNT = 0
+      THEN
+         RETURN;
+         
+      END IF;
+      
+      FOR i IN 1 .. ary_topo_maps.COUNT
+      LOOP
+         ary_parts := dz_testdata_util.gz_split(
+             p_str   => ary_topo_maps(i)
+            ,p_regex => ','
+            ,p_trim  => 'TRUE'
+         );
+         
+         MDSYS.SDO_TOPO_MAP.DROP_TOPO_MAP(
+            topo_map => ary_parts(1)
+         );
+         
+      END LOOP;
+      
+   END purge_all_topo_maps;
+   
+   -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
    PROCEDURE drop_kenosha_tiger_topology
    AS
    BEGIN
@@ -188,7 +283,6 @@ AS
          ,face_table_storage    => 'TABLESPACE ' || dz_testdata_constants.c_tablespace
          ,history_table_storage => 'TABLESPACE ' || dz_testdata_constants.c_tablespace
       );
-      dbms_output.put_line('Topology Created');
       
       EXECUTE IMMEDIATE 'GRANT SELECT ON dz_kenosha_tl_2014_edge$ TO public';
       EXECUTE IMMEDIATE 'GRANT SELECT ON dz_kenosha_tl_2014_face$ TO public';
@@ -545,17 +639,21 @@ AS
    -----------------------------------------------------------------------------
    -----------------------------------------------------------------------------
    PROCEDURE load_kenosha_tiger_topology(
-      p_java_memory   IN  NUMBER DEFAULT 2
+      p_java_memory   IN  NUMBER DEFAULT 4
    )
    AS
-      str_sql     VARCHAR2(4000 Char);
-      str_verify  VARCHAR2(4000 Char);
-      ary_ids     MDSYS.SDO_NUMBER_ARRAY;
-      ary_geoms   MDSYS.SDO_GEOMETRY_ARRAY;
-      topo_temp   MDSYS.SDO_TOPO_GEOMETRY;
-      ary_geoids  MDSYS.SDO_STRING2_ARRAY;
-      ary_blckids MDSYS.SDO_STRING2_ARRAY;
-      ary_trctids MDSYS.SDO_STRING2_ARRAY;
+      str_sql       VARCHAR2(4000 Char);
+      str_sql2      VARCHAR2(4000 Char);
+      str_verify    VARCHAR2(4000 Char);
+      ary_ids       MDSYS.SDO_NUMBER_ARRAY;
+      ary_geoms     MDSYS.SDO_GEOMETRY_ARRAY;
+      topo_temp     MDSYS.SDO_TOPO_GEOMETRY;
+      ary_geoids    MDSYS.SDO_STRING2_ARRAY;
+      ary_blckids   MDSYS.SDO_STRING2_ARRAY;
+      ary_trctids   MDSYS.SDO_STRING2_ARRAY;
+      ary_tractids  MDSYS.SDO_STRING2_ARRAY;
+      ary_tractgeos MDSYS.SDO_GEOMETRY_ARRAY;
+      curs_mine     SYS_REFCURSOR;
       
    BEGIN
 
@@ -588,58 +686,41 @@ AS
       
       --------------------------------------------------------------------------
       -- Step 30
-      -- Generate a topo map object
+      -- Set up for topo map creation
       --------------------------------------------------------------------------
-      BEGIN
-         MDSYS.SDO_TOPO_MAP.ROLLBACK_TOPO_MAP();
-         
-      EXCEPTION
-         WHEN OTHERS
-         THEN
-            NULL;
-            
-      END;
-      
-      BEGIN
-         MDSYS.SDO_TOPO_MAP.DROP_TOPO_MAP(
-            topo_map      => 'DZ_KENOSHA_TOPOMAP'
-         );
-         
-      EXCEPTION
-         WHEN OTHERS
-         THEN
-            NULL;
-            
-      END;
-      
       MDSYS.SDO_TOPO_MAP.SET_MAX_MEMORY_SIZE(
          p_java_memory * 1073741824
       );
       
-      MDSYS.SDO_TOPO_MAP.CREATE_TOPO_MAP(
-          topology      => 'DZ_KENOSHA_TL_2014'
-         ,topo_map      => 'DZ_KENOSHA_TOPOMAP'
-      );
-      
-      MDSYS.SDO_TOPO_MAP.LOAD_TOPO_MAP(
-          topo_map      => 'DZ_KENOSHA_TOPOMAP'
-         ,allow_updates => 'true'
-      );
+      purge_all_topo_maps();
       
       --------------------------------------------------------------------------
       -- Step 40
-      -- Load the kenosha face topo table from vector faces
+      -- Loop through the tracts obtaining their MBRs
+      --------------------------------------------------------------------------
+      str_sql := 'SELECT '
+              || ' a.tractce '
+              || ',MDSYS.SDO_GEOM.SDO_MBR(a.shape) AS shape '
+              || 'FROM tl_2014_55059_tract a';
+              
+      EXECUTE IMMEDIATE str_sql
+      BULK COLLECT INTO 
+       ary_tractids
+      ,ary_tractgeos;
+      
+      --------------------------------------------------------------------------
+      -- Step 50
+      -- Loop through the tracts obtaining their MBRs
       --------------------------------------------------------------------------
       str_sql := 'SELECT '
               || ' a.tfid '
               || ',a.shape '
               || 'FROM '
-              || 'tl_2014_55059_faces a ';  
+              || 'tl_2014_55059_faces a '
+              || 'WHERE '
+              || 'a.tfid = :p01 ';  
               
-      EXECUTE IMMEDIATE str_sql
-      BULK COLLECT INTO ary_ids,ary_geoms; 
-
-      str_sql := 'INSERT INTO dz_kenosha_face '
+      str_sql2 := 'INSERT INTO dz_kenosha_face '
               || 'SELECT '
               || ' a.tfid '
               || ',a.statefp10 '
@@ -691,65 +772,92 @@ AS
               || 'WHERE '
               || 'a.tfid = :p02 ';
               
-      FOR i IN 1 .. ary_ids.COUNT
+      FOR i IN 1 .. ary_tractids.COUNT
       LOOP
-         topo_temp := MDSYS.SDO_TOPO_MAP.CREATE_FEATURE(
-             topology    => 'DZ_KENOSHA_TL_2014'
-            ,table_name  => 'DZ_KENOSHA_FACE'
-            ,column_name => 'TOPO_GEOM'
-            ,geom        => ary_geoms(i)
+         MDSYS.SDO_TOPO_MAP.CREATE_TOPO_MAP(
+             topology      => 'DZ_KENOSHA_TL_2014'
+            ,topo_map      => 'DZ_KENOSHA_TOPOMAP'
          );
+      
+         MDSYS.SDO_TOPO_MAP.LOAD_TOPO_MAP(
+             topo_map      => 'DZ_KENOSHA_TOPOMAP'
+            ,allow_updates => 'TRUE'
+            ,build_indexes => 'TRUE'
+            ,xmin          => ary_tractgeos(i).SDO_ORDINATES(1) - 0.0001
+            ,ymin          => ary_tractgeos(i).SDO_ORDINATES(2) - 0.0001
+            ,xmax          => ary_tractgeos(i).SDO_ORDINATES(3) + 0.0001
+            ,ymax          => ary_tractgeos(i).SDO_ORDINATES(4) + 0.0001
+         );
+      
+      --------------------------------------------------------------------------
+      -- Step 40
+      -- Load the kenosha face topo table from vector faces
+      --------------------------------------------------------------------------
+         OPEN curs_mine FOR str_sql USING ary_tractids(i);
+         LOOP
+            FETCH curs_mine 
+            BULK COLLECT INTO ary_ids,ary_geoms
+            LIMIT 100; 
          
-         EXECUTE IMMEDIATE str_sql 
-         USING topo_temp,ary_ids(i);
+            FOR j IN 1 .. ary_ids.COUNT
+            LOOP
+               topo_temp := MDSYS.SDO_TOPO_MAP.CREATE_FEATURE(
+                   topology    => 'DZ_KENOSHA_TL_2014'
+                  ,table_name  => 'DZ_KENOSHA_FACE'
+                  ,column_name => 'TOPO_GEOM'
+                  ,geom        => ary_geoms(j)
+               );
+               
+               EXECUTE IMMEDIATE str_sql2 
+               USING topo_temp,ary_ids(j);
+            
+            END LOOP;
+            
+            EXIT WHEN curs_mine%NOTFOUND;
+            
+         END LOOP;
+         CLOSE curs_mine;
       
+         MDSYS.SDO_TOPO_MAP.COMMIT_TOPO_MAP();
+         
+         purge_all_topo_maps();
+         
+         COMMIT;
+         
       END LOOP;
-      COMMIT;
-      
-      MDSYS.SDO_TOPO_MAP.COMMIT_TOPO_MAP();
       
       --------------------------------------------------------------------------
       -- Step 50
       -- Validate the topology
       --------------------------------------------------------------------------
-      MDSYS.SDO_TOPO_MAP.DROP_TOPO_MAP(
-          topo_map => 'DZ_KENOSHA_TOPOMAP'
-      );
-      
       str_verify := MDSYS.SDO_TOPO_MAP.VALIDATE_TOPOLOGY(
           topology => 'DZ_KENOSHA_TL_2014'
       );
+      
       IF str_verify <> 'TRUE'
       THEN
          RAISE_APPLICATION_ERROR(-20001,str_verify);
           
       END IF;
-      EXECUTE IMMEDIATE 'GRANT SELECT ON dz_kenosha_tl_2014_relation$ TO public';
+      
+      str_sql := 'GRANT SELECT ON dz_kenosha_tl_2014_relation$ TO public';
+      EXECUTE IMMEDIATE str_sql;
       
       --------------------------------------------------------------------------
       -- Step 60
-      -- Refresh the topo map
+      -- Create a fresh topo map for the hierachy layers
       --------------------------------------------------------------------------
-      BEGIN
-         MDSYS.SDO_TOPO_MAP.DROP_TOPO_MAP(
-            topo_map      => 'DZ_KENOSHA_TOPOMAP'
-         );
+      purge_all_topo_maps();
       
-      EXCEPTION
-         WHEN OTHERS
-         THEN
-            NULL;
-            
-      END;
-          
       MDSYS.SDO_TOPO_MAP.CREATE_TOPO_MAP(
           topology      => 'DZ_KENOSHA_TL_2014'
          ,topo_map      => 'DZ_KENOSHA_TOPOMAP'
       );
-      
+         
       MDSYS.SDO_TOPO_MAP.LOAD_TOPO_MAP(
           topo_map      => 'DZ_KENOSHA_TOPOMAP'
-         ,allow_updates => 'true'
+         ,allow_updates => 'TRUE'
+         ,build_indexes => 'TRUE'
       );
       
       --------------------------------------------------------------------------
@@ -764,7 +872,10 @@ AS
               || 'tl_2014_55059_tabblock10 a ';
               
       EXECUTE IMMEDIATE str_sql
-      BULK COLLECT INTO ary_geoids,ary_trctids,ary_blckids; 
+      BULK COLLECT INTO 
+       ary_geoids
+      ,ary_trctids
+      ,ary_blckids; 
   
       str_sql := 'INSERT INTO dz_kenosha_block '
               || 'SELECT '
@@ -1134,10 +1245,12 @@ AS
    )
    AS
       str_sql     VARCHAR2(4000 Char);
+      str_sql2    VARCHAR2(4000 Char);
       str_verify  VARCHAR2(4000 Char);
       ary_ids     MDSYS.SDO_NUMBER_ARRAY;
       ary_geoms   MDSYS.SDO_GEOMETRY_ARRAY;
       topo_temp   MDSYS.SDO_TOPO_GEOMETRY;
+      curs_mine   SYS_REFCURSOR;
       
    BEGIN
    
@@ -1172,31 +1285,11 @@ AS
       -- Step 30
       -- Generate a topo map object
       --------------------------------------------------------------------------
-      BEGIN
-         MDSYS.SDO_TOPO_MAP.ROLLBACK_TOPO_MAP();
-         
-      EXCEPTION
-         WHEN OTHERS
-         THEN
-            NULL;
-            
-      END;
-      
-      BEGIN
-         MDSYS.SDO_TOPO_MAP.DROP_TOPO_MAP(
-            topo_map => 'DZ_CATCHMENTS_TOPOMAP'
-         );
-      
-      EXCEPTION
-         WHEN OTHERS
-         THEN
-            NULL;
-            
-      END;
-      
       MDSYS.SDO_TOPO_MAP.SET_MAX_MEMORY_SIZE(
          p_java_memory * 1073741824
       );
+      
+      purge_all_topo_maps();
       
       MDSYS.SDO_TOPO_MAP.CREATE_TOPO_MAP(
           topology      => 'DZ_CATCHMENTS_NP21'
@@ -1205,7 +1298,8 @@ AS
       
       MDSYS.SDO_TOPO_MAP.LOAD_TOPO_MAP(
           topo_map      => 'DZ_CATCHMENTS_TOPOMAP'
-         ,allow_updates => 'true'
+         ,allow_updates => 'TRUE'
+         ,build_indexes => 'TRUE'
       );
       
       --------------------------------------------------------------------------
@@ -1221,7 +1315,7 @@ AS
       EXECUTE IMMEDIATE str_sql
       BULK COLLECT INTO ary_ids,ary_geoms; 
 
-      str_sql := 'INSERT INTO dz_catchments_np21_topo '
+      str_sql2 := 'INSERT INTO dz_catchments_np21_topo '
               || 'SELECT '
               || ' a.featureid '
               || ',a.sourcefc '
@@ -1235,20 +1329,31 @@ AS
               || 'WHERE '
               || 'a.featureid = :p02 ';
               
-      FOR i IN 1 .. ary_ids.COUNT
+      OPEN curs_mine FOR str_sql;
       LOOP
-         topo_temp := MDSYS.SDO_TOPO_MAP.CREATE_FEATURE(
-             topology    => 'DZ_CATCHMENTS_NP21'
-            ,table_name  => 'DZ_CATCHMENTS_NP21_TOPO'
-            ,column_name => 'TOPO_GEOM'
-            ,geom        => ary_geoms(i)
-         );
-         
-         EXECUTE IMMEDIATE str_sql 
-         USING topo_temp,ary_ids(i);
+         FETCH curs_mine 
+         BULK COLLECT INTO ary_ids,ary_geoms
+         LIMIT 100; 
       
+         FOR i IN 1 .. ary_ids.COUNT
+         LOOP     
+            topo_temp := MDSYS.SDO_TOPO_MAP.CREATE_FEATURE(
+                topology    => 'DZ_CATCHMENTS_NP21'
+               ,table_name  => 'DZ_CATCHMENTS_NP21_TOPO'
+               ,column_name => 'TOPO_GEOM'
+               ,geom        => ary_geoms(i)
+            );
+            
+            EXECUTE IMMEDIATE str_sql2 
+            USING topo_temp,ary_ids(i);
+         
+         END LOOP;
+         COMMIT;
+         
+         EXIT WHEN curs_mine%NOTFOUND;
+         
       END LOOP;
-      COMMIT;
+      CLOSE curs_mine;
       
       MDSYS.SDO_TOPO_MAP.COMMIT_TOPO_MAP();
       
