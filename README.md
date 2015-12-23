@@ -5,7 +5,7 @@ For the most up-to-date documentation see the auto-build  [dz_testdata_deploy.pd
 
 All datasets limited to only cover Kenosha County, Wisconsin.
 
-###Vector Datasets Included:
+#####Vector Datasets Included:
 1. US Census Tiger 2014 2D County Polygons
 2. US Census Tiger 2014 2D County Subdivision Polygons
 3. US Census Tiger 2014 2D Tract Polygons
@@ -20,14 +20,14 @@ All datasets limited to only cover Kenosha County, Wisconsin.
 12. US EPA NHDPlus 2D Waterbody Polygons
 13. Open Street Map 2D Points of Interest
 
-###Raster Datasets Included:
+#####Raster Datasets Included:
 1. US EPA NHDPlus 1-band Flow Direction Grid Raster
 
-### Derived Topology Datasets:
+#####Derived Topology Datasets:
 1. Hierachical Tiger 2014 Topology of raw faces with five levels - face, tab blocks, tracts, count subdivision, county.
 2. Simple NHDPlus Catchment topology
 
-### Derived Network Data Model Datasets:
+#####Derived Network Data Model Datasets:
 1. SDO NDM of NHDPlus flow network
 
 ## Installation
