@@ -4,24 +4,6 @@ AS
    -----------------------------------------------------------------------------
    -----------------------------------------------------------------------------
    /*
-   header: DZ_TESTDATA
-     
-   - Build ID: DZBUILDIDDZ
-   - TFS Change Set: DZTFSCHANGESETDZ
-   
-   Sample data used in validation of tests and procedures.
-   All data sets derived from public domain US government datasets, notably
-   US Census Bureau, Open Street Map and EPA NHDPlus Hydrologic datasets.
-   
-   Data storage formats in these packages utilize the full range of Oracle
-   Spatial data models and storage formats and thus require the full Oracle 
-   Spatial license to use.
-   
-   */
-    
-   -----------------------------------------------------------------------------
-   -----------------------------------------------------------------------------
-   /*
    Procedure: dz_testdata_main.drop_datasets
 
    Procedure to drop all datasets currently in the dz_testdata package.
