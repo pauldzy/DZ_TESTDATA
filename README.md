@@ -42,7 +42,7 @@ The NDM example is provided in geodetic NAD83 coordinate system using SRID 8265 
 All datasets are currently limited to only cover Kenosha County, Wisconsin.  Ideally having a unified theme of a single county worth of data is the goal, but contributers are welcome to submit data for other areas.  However the general size of any such "sample" data should be no larger than that of a US county.  The idea is to provide a bit more than the usual lame "cola market" example but a lot less than a full dataset.  
 
 ## Installation
-Simply execute the deployment script into the schema of your choice.  The script itself only loads the code to create resources and does not generate the resources themselves.  Note that currently the deployment script is about 44 meg and will tend to stress or even crash development GUIs that parse and analyze the contents.  The easiest solution is to just run the deployment script directly using sqlplus.
+Simply execute the deployment script into the schema of your choice.  The script itself only loads the code to create resources and does not generate the resources themselves.  Note that currently the deployment script is about 44 meg and will tend to stress or even crash development GUIs that parse and analyze the contents.  The easiest solution is to just run the deployment script directly using sqlplus.  Note that to build the topology and ndm datasets, the host schema requires the CREATE VIEW privledge.
 
 Next examine the constants in the dz_testdata_constants package and make any changes as needed.  In particular the raster dataset can be a bit problematic on 11g due to the unsupported (before 12c) srid.
 
