@@ -23,9 +23,7 @@ All vector datasets are provided in geodetic NAD83 coordinate system using SRID 
 #####Raster Datasets Included:
 1. [US EPA NHDPlus] (http://www.horizon-systems.com/nhdplus/NHDPlusV2_home.php) 1-band Flow Direction Grid Raster
 
-Raster dataset is provided in Albers equal-area for North America projected coordinate system using the local equivalent to SRID 5070.  5070 is only included as part of Oracle Spatial with the 12c release.  If using 11g or earlier, you will need to add a custom SRID for this projection.  Complete details on adding this custom cs is provided at 
-
-http://www.epa.gov/waterdata/spatial-data-waters#AddingCustomCoordinateReferenceSystems
+Raster dataset is provided in Albers equal-area for North America projected coordinate system using the local equivalent to SRID 5070.  5070 is only included as part of Oracle Spatial with the 12c release.  If using 11g or earlier, you will need to add a custom SRID for this projection.  A script to add this custom coodinate system is [provided here](https://github.com/pauldzy/USGS_Albers_Equal_Area_Projections/blob/master/Oracle/continental_us.sql).
 
 #####Derived Topology Datasets:
 1. Hierachical Tiger 2014 Topology of raw faces with five levels - face, tab blocks, tracts, count subdivision, county.
