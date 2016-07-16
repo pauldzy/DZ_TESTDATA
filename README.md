@@ -45,7 +45,7 @@ Simply execute the deployment script into the schema of your choice.  The script
 Next examine the constants in the dz_testdata_constants package and make any changes as needed.  In particular the raster dataset can be a bit problematic on 11g due to the unsupported (before 12c) Albers srid.
 
 To install everything in a single command, execute the following:
-```
+```sql
 BEGIN
    dz_testdata_main.create_datasets();
    dz_testdata_main.load_datasets();
@@ -55,7 +55,7 @@ END;
 Otherwise you can choose datasets in a more a la carte fashion.
 
 To only load the vector datasets, execute 
-```
+```sql
 BEGIN
    dz_testdata_vector.create_vector();
    dz_testdata_vector.load_vector();
