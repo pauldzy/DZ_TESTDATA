@@ -7,7 +7,7 @@ AS
    Header: DZ_TESTDATA
      
    - Build ID: DZBUILDIDDZ
-   - TFS Change Set: DZTFSCHANGESETDZ
+   - TFS Change Set: DZCHANGESETDZ
    
    Sample data used in validation of tests and procedures.
    All data sets derived from public domain US government datasets, notably
