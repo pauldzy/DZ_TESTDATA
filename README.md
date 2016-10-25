@@ -70,7 +70,7 @@ Many of the data storage formats and code functions utilized in these examples r
 
 * 10g: https://docs.oracle.com/html/B10826_01/sdo_locator.htm
 * 11g: http://docs.oracle.com/cd/E11882_01/appdev.112/e11830/sdo_locator.htm#SPATL340
-* 12c: https://docs.oracle.com/database/121/SPATL/sdo_locator.htm#SPATL340
+* 12c: https://docs.oracle.com/database/121/SPATL/GUID-EC6DEA23-8FD7-4109-A0C1-93C0CE3D6FF2.htm#SPATL340
 
 (note there are differences by Oracle version, make sure to follow the one for the Oracle database version you are using)
 
