@@ -1,0 +1,192 @@
+{
+    "constants": [
+       {
+          "key":   "JOBNAME"
+         ,"value": "DZ_TESTDATA"
+       }
+      ,{
+          "key": "GITRELEASE"
+         ,"cmd": "git describe --abbrev=0 --tags"
+       }
+      ,{
+          "key": "GITCOMMIT"
+         ,"cmd": "git rev-parse master"
+       }
+      ,{
+          "key": "GITCOMMITDATE"
+         ,"cmd": "git show -s --format=%cd"
+       }
+      ,{
+          "key": "GITCOMMITAUTH"
+         ,"cmd": "git show -s --format=%an"
+       }
+    ]
+   ,"tasks": [
+       {
+          "id": "concatenate"
+         ,"output": "dz_testdata_deploy.sql"
+         ,"includes": [
+             "%%SQLHEADER%%"
+            ,"Procedures/LOAD01_NP21_CATCHMENT_55059.prc"
+            ,"Procedures/LOAD01_NP21_FDR_RDT_55059.prc"
+            ,"Procedures/LOAD01_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD01_TL_2014_55059_FACES.prc"
+            ,"Procedures/LOAD01_TL_2014_55059_ROADS.prc"
+            ,"Procedures/LOAD01_TL_2014_55059_TABBLK.prc"
+            ,"Procedures/LOAD02_NP21_CATCHMENT_55059.prc"
+            ,"Procedures/LOAD02_NP21_FDR_RDT_55059.prc"
+            ,"Procedures/LOAD02_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD02_TL_2014_55059_FACES.prc"
+            ,"Procedures/LOAD02_TL_2014_55059_ROADS.prc"
+            ,"Procedures/LOAD02_TL_2014_55059_TABBLK.prc"
+            ,"Procedures/LOAD03_NP21_FDR_RDT_55059.prc"
+            ,"Procedures/LOAD03_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD03_TL_2014_55059_FACES.prc"
+            ,"Procedures/LOAD03_TL_2014_55059_ROADS.prc"
+            ,"Procedures/LOAD03_TL_2014_55059_TABBLK.prc"
+            ,"Procedures/LOAD04_NP21_FDR_RDT_55059.prc"
+            ,"Procedures/LOAD04_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD04_TL_2014_55059_FACES.prc"
+            ,"Procedures/LOAD04_TL_2014_55059_ROADS.prc"
+            ,"Procedures/LOAD04_TL_2014_55059_TABBLK.prc"
+            ,"Procedures/LOAD05_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD05_TL_2014_55059_FACES.prc"
+            ,"Procedures/LOAD05_TL_2014_55059_TABBLK.prc"
+            ,"Procedures/LOAD06_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD06_TL_2014_55059_FACES.prc"
+            ,"Procedures/LOAD06_TL_2014_55059_TABBLK.prc"
+            ,"Procedures/LOAD07_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD07_TL_2014_55059_FACES.prc"
+            ,"Procedures/LOAD07_TL_2014_55059_TABBLK.prc"
+            ,"Procedures/LOAD08_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD08_TL_2014_55059_TABBLK.prc"
+            ,"Procedures/LOAD09_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD10_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD11_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD12_TL_2014_55059_EDGES.prc"
+            ,"Procedures/LOAD_NP21_FDR_55059.prc"
+            ,"Procedures/LOAD_NP21_FLOWLINE_55059.prc"
+            ,"Procedures/LOAD_NP21_PLUSFLOWLINEVA_55059.prc"
+            ,"Procedures/LOAD_NP21_PLUSFLOW_55059.prc"
+            ,"Procedures/LOAD_NP21_WATERBODY_55059.prc"
+            ,"Procedures/LOAD_OSM_KENOSHA_POI.prc"
+            ,"Procedures/LOAD_TL_2014_55059_COUNTY.prc"
+            ,"Procedures/LOAD_TL_2014_55059_COUSUB.prc"
+            ,"Procedures/LOAD_TL_2014_55059_PLACE.prc"
+            ,"Procedures/LOAD_TL_2014_55059_RAILS.prc"
+            ,"Procedures/LOAD_TL_2014_55059_TRACT.prc"
+            ,"Procedures/LOAD_TL_2014_55059_ZCTA510.prc"
+            ,"Packages/DZ_TESTDATA_CONSTANTS.pks"
+            ,"Packages/DZ_TESTDATA_UTIL.pks"
+            ,"Packages/DZ_TESTDATA_UTIL.pkb"
+            ,"Packages/DZ_TESTDATA_VECTOR.pks"
+            ,"Packages/DZ_TESTDATA_VECTOR.pkb"
+            ,"Packages/DZ_TESTDATA_RASTER.pks"
+            ,"Packages/DZ_TESTDATA_RASTER.pkb"
+            ,"Packages/DZ_TESTDATA_NETWORK.pks"
+            ,"Packages/DZ_TESTDATA_NETWORK.pkb"
+            ,"Packages/DZ_TESTDATA_TOPO.pks"
+            ,"Packages/DZ_TESTDATA_TOPO.pkb"
+            ,"Packages/DZ_TESTDATA_MAIN.pks"
+            ,"Packages/DZ_TESTDATA_MAIN.pkb"
+            ,"Packages/DZ_TESTDATA_TEST.pks"
+            ,"Packages/DZ_TESTDATA_TEST.pkb"
+            ,"%%SQLFOOTER%%"
+          ]
+         ,"separator": "--******************************--\nPROMPT %%FILENAME%% \n\n"
+         ,"components": [
+             {
+                "identifier": "SQLHEADER"
+               ,"content": [
+                   "WHENEVER SQLERROR EXIT -99;"
+                  ,"WHENEVER OSERROR  EXIT -98;"
+                  ,"SET DEFINE OFF;"
+                  ,""
+                ]
+             }
+            ,{
+                "identifier": "SQLFOOTER"
+               ,"content": [
+                   "SHOW ERROR;"
+                  ,""
+                  ,"DECLARE"
+                  ,"   l_num_errors PLS_INTEGER;"
+                  ,""
+                  ,"BEGIN"
+                  ,""
+                  ,"   SELECT"
+                  ,"   COUNT(*)"
+                  ,"   INTO l_num_errors"
+                  ,"   FROM"
+                  ,"   user_errors a"
+                  ,"   WHERE"
+                  ,"   a.name LIKE '%JOBNAME%%';"
+                  ,""
+                  ,"   IF l_num_errors <> 0"
+                  ,"   THEN"
+                  ,"      RAISE_APPLICATION_ERROR(-20001,'COMPILE ERROR');"
+                  ,""
+                  ,"   END IF;"
+                  ,""
+                  ,"   l_num_errors := %JOBNAME%_TEST.inmemory_test();"
+                  ,""
+                  ,"   IF l_num_errors <> 0"
+                  ,"   THEN"
+                  ,"      RAISE_APPLICATION_ERROR(-20001,'INMEMORY TEST ERROR');"
+                  ,""
+                  ,"   END IF;"
+                  ,""
+                  ,"END;"
+                  ,"/"
+                  ,""
+                  ,"EXIT;"
+                  ,"SET DEFINE OFF;"
+                  ,""
+                ]
+             }
+          ]
+         ,"configurations": [
+            {
+                "id": 1
+               ,"file": "Packages/DZ_TESTDATA_TEST.pks"
+               ,"replacements": [
+                   {
+                      "string": "C_GITRELEASE    CONSTANT VARCHAR2(255 Char) := 'NULL';"
+                     ,"value":  "C_GITRELEASE    CONSTANT VARCHAR2(255 Char) := '%GITRELEASE%';"
+                   }
+                  ,{
+                      "string": "C_GITCOMMIT     CONSTANT VARCHAR2(255 Char) := 'NULL';"
+                     ,"value":  "C_GITCOMMIT     CONSTANT VARCHAR2(255 Char) := '%GITCOMMIT%';"
+                   }
+                  ,{
+                      "string": "C_GITCOMMITDATE CONSTANT VARCHAR2(255 Char) := 'NULL';"
+                     ,"value":  "C_GITCOMMITDATE CONSTANT VARCHAR2(255 Char) := '%GITCOMMITDATE%';"
+                   }
+                  ,{
+                      "string": "C_GITCOMMITAUTH CONSTANT VARCHAR2(255 Char) := 'NULL';"
+                     ,"value":  "C_GITCOMMITAUTH CONSTANT VARCHAR2(255 Char) := '%GITCOMMITAUTH%';"
+                   }
+                ]
+            }
+          ]
+       }
+      ,{
+          "id": "naturaldocs"
+         ,"input":  "dz_testdata_deploy.sql"
+         ,"output_dir": "stage1"
+       }
+      ,{
+          "id": "wkhtmltopdf"
+         ,"input_dir": "stage1"
+         ,"output": "dz_testdata_deploy.pdf"
+       }
+      ,{
+          "id": "artifacts"
+         ,"targets": [
+             "dz_testdata_deploy.sql"
+            ,"dz_testdata_deploy.pdf"
+         ]
+       }
+   ]
+}
+
