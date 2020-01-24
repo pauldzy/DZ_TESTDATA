@@ -199,7 +199,7 @@ AS
       COUNT(*)
       INTO num_count
       FROM
-      user_tables a
+      user_all_tables a
       WHERE
       table_name IN (
           'NHDPLUS_FDR_55059'
