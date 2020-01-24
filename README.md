@@ -70,7 +70,9 @@ Many of the data storage formats and code functions utilized in these examples r
 
 * 10g: https://docs.oracle.com/html/B10826_01/sdo_locator.htm
 * 11g: http://docs.oracle.com/cd/E11882_01/appdev.112/e11830/sdo_locator.htm#SPATL340
-* 12c: https://docs.oracle.com/database/121/SPATL/GUID-EC6DEA23-8FD7-4109-A0C1-93C0CE3D6FF2.htm#SPATL340
+* 12c: https://docs.oracle.com/database/121/SPATL/sdo_locator.htm#SPATL340
+* 18c: https://docs.oracle.com/en/database/oracle/oracle-database/18/spatl/oracle-locator.html#GUID-EC6DEA23-8FD7-4109-A0C1-93C0CE3D6FF2
+* 19c: https://docs.oracle.com/en/database/oracle/oracle-database/19/spatl/oracle-locator.html#GUID-EC6DEA23-8FD7-4109-A0C1-93C0CE3D6FF2
 
 (note there are differences by Oracle version, make sure to follow the one for the Oracle database version you are using)
 
@@ -80,4 +82,7 @@ Forks and pulls are **most** welcome.  The deployment script and deployment docu
 ## Oracle Licensing Disclaimer
 Oracle places the burden of matching functionality usage with server licensing entirely upon the user.  In the realm of Oracle Spatial, some features are "[spatial](http://download.oracle.com/otndocs/products/spatial/pdf/12c/oraspatitalandgraph_12_fo.pdf)" (and thus a separate purchased "option" beyond enterprise) and some are "[locator](http://download.oracle.com/otndocs/products/spatial/pdf/12c/oraspatialfeatures_12c_fo_locator.pdf)" (bundled with standard and enterprise).  This differentiation is ever changing.  Thus the definition for 11g is not exactly the same as the definition for 12c.  If you are seeking to utilize my code **without** a full Spatial option license, I do provide a good faith estimate of the licensing required and when coding I am conscious of keeping repository functionality to the simplest licensing level when possible.  However - as all such things go - the final burden of determining if functionality in a given repository matches your server licensing is entirely placed upon the user.  You should **always** fully inspect the code and its usage of Oracle functionality in light of your licensing.  Any reliance you place on my estimation is therefore strictly at your own risk.
 
-In my estimation functionality in the DZ_TESTDATA repository requires the full Oracle Spatial option for 10g, 11g and 12c.
+In my estimation functionality in the DZ_TESTDATA repository requires the full Oracle Spatial option for 10g through 19c.
+
+## Oracle Auditing Disclaimer
+Please note that the act of deploying Oracle Georaster, Topology or NDM datasets will set your DBA_FEATURE_USAGE_STATISTICS to show Spatial as being CURRENTLY_USED = TRUE.  Thus were a person to deploy my package as an experiment or a training exercise upon an existing licensed database, one may find this complicates your next Oracle audit.  Simply put you won't make any friends with your DBAs or management if you do this.
